@@ -1,0 +1,16 @@
+{
+  "name": "aave-paraswap-test",
+  "version": "0.1.0",
+  "description": "Tests ParaSwap adapters for Aave",
+  "main": "index.js",
+  "repository": "https://github.com/ColonelJ/aave-paraswap-test.git",
+  "author": "Jason Raymond Bell <jason@epixxware.com>",
+  "license": "Unlicense",
+  "private": true,
+  "dependencies": {
+    "axios": "^0.21.1",
+    "dotenv": "^8.2.0",
+    "ethers": "^5.0.32",
+    "paraswap": "^3.2.0"
+  }
+}

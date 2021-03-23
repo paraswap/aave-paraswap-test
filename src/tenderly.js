@@ -33,6 +33,7 @@ class TenderlyFork {
   }
 
   get_rpc_url() {
+    if (!this.fork_id) throw new Error('Fork not initialized!');
     return `https://rpc.tenderly.co/fork/${this.fork_id}`;
   }
 }

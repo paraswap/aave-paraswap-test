@@ -23,15 +23,23 @@ async function main() {
   console.log('Created wallet for address', signer.address);
 
   // Build a swap on ParaSwap
-  const amount_to_swap = ethers.utils.parseEther('5');
+  const amount_to_swap = ethers.utils.parseEther('10.01');
   const paraswap = new ParaSwap(parseInt(FORK_NETWORK_ID), PARASWAP_API);
-  const priceRoute = await paraswap.getRate('WETH', 'DAI', amount_to_swap.toString(), 'SELL', { referrer: 'aave' });
+  const priceRoute = await paraswap.getRate('WETH', 'DAI', amount_to_swap.toString(), 'SELL', { referrer: 'aave', excludeDEXS: 'Balancer' });
   const { others, ...priceRouteNoOthers } = priceRoute;
   console.log('priceRoute:', JSON.stringify(priceRouteNoOthers, null, 2));
   if (priceRoute.message) throw new Error('Error getting priceRoute');
-  const txParams = await paraswap.buildTx('WETH', 'DAI', priceRoute.srcAmount, priceRoute.priceWithSlippage, priceRouteNoOthers, signer.address, 'aave', undefined, { ignoreChecks: true });
+  const txParams = await paraswap.buildTx('WETH', 'DAI', priceRoute.srcAmount, priceRoute.priceWithSlippage, priceRouteNoOthers, signer.address, 'aave', undefined, { ignoreChecks: true, forceMultiSwap: true });
   console.log('txParams:', txParams);
   if (txParams.message) throw new Error('Error getting txParams');
+  let fromAmountOffset;
+  switch (txParams.data.slice(0, 10)) {
+    case '0xda8567c8': // Augustus V3 multiSwap
+      fromAmountOffset = 4 + 32 + 2*32;
+      break;
+    default:
+      throw new Error('Unrecognized function selector for Augustus');
+  }
 
   // Create a fork on Tenderly
   const fork = new TenderlyFork();
@@ -119,7 +127,7 @@ async function main() {
     DAI[FORK_NETWORK_ID],
     priceRoute.srcAmount,
     priceRoute.priceWithSlippage,
-    0,
+    fromAmountOffset,
     txParams.data,
     txParams.to,
     {

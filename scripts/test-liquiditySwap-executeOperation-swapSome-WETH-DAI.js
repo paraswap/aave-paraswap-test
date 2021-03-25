@@ -2,7 +2,7 @@ require('dotenv').config();
 const { ethers } = require('ethers');
 const { ParaSwap } = require('paraswap');
 const { TenderlyFork } = require('../src/tenderly');
-const { augustusFromAmountOffsetFromCalldata } = require('../src/augustus');
+const { encodeParaSwapLiquiditySwapAdapterParams } = require('../src/adapters');
 const {
   AAVE_ADDRESSES_PROVIDER,
   WETH,
@@ -24,16 +24,15 @@ async function main() {
   console.log('Created wallet for address', signer.address);
 
   // Build a swap on ParaSwap
-  const amount_to_swap = ethers.utils.parseEther('10.01');
+  const amount_to_swap = ethers.utils.parseEther('5');
   const paraswap = new ParaSwap(parseInt(FORK_NETWORK_ID), PARASWAP_API);
-  const priceRoute = await paraswap.getRate('WETH', 'DAI', amount_to_swap.toString(), 'SELL', { referrer: 'aave', excludeDEXS: 'Balancer', excludeMPDEXS: 'Balancer' });
+  const priceRoute = await paraswap.getRate('WETH', 'DAI', amount_to_swap.toString(), 'SELL', { referrer: 'aave' });
   const { others, ...priceRouteNoOthers } = priceRoute;
   console.log('priceRoute:', JSON.stringify(priceRouteNoOthers, null, 2));
   if (priceRoute.message) throw new Error('Error getting priceRoute');
-  const txParams = await paraswap.buildTx('WETH', 'DAI', priceRoute.srcAmount, priceRoute.priceWithSlippage, priceRouteNoOthers, signer.address, 'aave', undefined, { ignoreChecks: true, forceMultiSwap: true });
+  const txParams = await paraswap.buildTx('WETH', 'DAI', priceRoute.srcAmount, priceRoute.priceWithSlippage, priceRouteNoOthers, signer.address, 'aave', undefined, { ignoreChecks: true });
   console.log('txParams:', txParams);
   if (txParams.message) throw new Error('Error getting txParams');
-  const fromAmountOffset = augustusFromAmountOffsetFromCalldata(txParams.data);
 
   // Create a fork on Tenderly
   const fork = new TenderlyFork();
@@ -109,19 +108,20 @@ async function main() {
     'WETH in AToken'
   );
 
-  // Approve adapter to spend ATokens
+  // Approve adapter to spend ATokens (including flashloan premium)
   console.log('Setting allowance for adapter...');
-  await (await aWETH.approve(adapter.address, priceRoute.srcAmount)).wait();
+  await (await aWETH.approve(
+    adapter.address,
+    ethers.BigNumber.from(priceRoute.srcAmount).mul(10009).div(10000)
+  )).wait();
   console.log('Allowance set successfully');
 
   // Perform the swap on the adapter
-  console.log('Performing swap using swapAndDeposit...');
-  await (await adapter.swapAndDeposit(
-    WETH[FORK_NETWORK_ID],
+  console.log('Performing swap using flashLoan...');
+  const params = encodeParaSwapLiquiditySwapAdapterParams(
     DAI[FORK_NETWORK_ID],
-    priceRoute.srcAmount,
     priceRoute.priceWithSlippage,
-    fromAmountOffset,
+    0,
     txParams.data,
     txParams.to,
     {
@@ -130,7 +130,16 @@ async function main() {
       v: 0,
       r: '0x0000000000000000000000000000000000000000000000000000000000000000',
       s: '0x0000000000000000000000000000000000000000000000000000000000000000',
-    },
+    }
+  );
+  await (await lending_pool.flashLoan(
+    adapter.address,
+    [WETH[FORK_NETWORK_ID]],
+    [priceRoute.srcAmount],
+    [0],
+    signer.address,
+    params,
+    0,
     { gasLimit: 5000000 }
   )).wait();
   console.log('Swap performed successfully!');

@@ -122,7 +122,7 @@ async function main() {
     fromAsset: WETH[FORK_NETWORK_ID],
     toAsset: DAI[FORK_NETWORK_ID],
     swapAll: true,
-    fromAToken: '0x030bA81f1c18d280636F32af80b9AAd02Cf0854e',
+    fromAToken: aWETH_address,
     maxSlippage: '2',
     fromAmount: ethers.utils.formatUnits(priceRoute.srcAmount, 18),
     toAmount: ethers.utils.formatUnits(priceRoute.priceWithSlippage, 18),

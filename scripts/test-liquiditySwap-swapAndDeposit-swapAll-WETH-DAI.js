@@ -26,9 +26,9 @@ async function main() {
     await (
       await fetch('https://aave.github.io/aave-addresses/mainnet.json')
     ).json()
-  )[0]['aave-v2'];
+  ).proto;
 
-  const symbol = 'sUSD';
+  const symbol = 'wBTC';
   const toAsset = assets.find(
     (asset) => asset.symbol.toUpperCase() === symbol.toUpperCase()
   );
@@ -151,16 +151,16 @@ async function main() {
     await (await signer.sendTransaction(await tx.tx())).wait();
   }
   console.log('Swap performed successfully!');
-  const aDAI_address = (await lending_pool.getReserveData(toAsset.address))
+  const aTO_address = (await lending_pool.getReserveData(toAsset.address))
     .aTokenAddress;
-  const aDAI = new ethers.Contract(aDAI_address, IERC20_ARTIFACT.abi, signer);
+  const aTO = new ethers.Contract(aTO_address, IERC20_ARTIFACT.abi, signer);
   const aWETH_balance_after = await aWETH.balanceOf(signer.address);
-  const aDAI_balance_after = await aDAI.balanceOf(signer.address);
+  const aTO_balance_after = await aTO.balanceOf(signer.address);
   console.log(
     'Final balances',
     ethers.utils.formatEther(aWETH_balance_after),
     'aWETH',
-    ethers.utils.formatUnits(aDAI_balance_after, toAsset.decimals),
+    ethers.utils.formatUnits(aTO_balance_after, toAsset.decimals),
     toAsset.aTokenSymbol
   );
 }

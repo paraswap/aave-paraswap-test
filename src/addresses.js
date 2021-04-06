@@ -7,6 +7,19 @@ const WETH = {
 const DAI = {
   1: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
 };
+const xSUSHI = {
+  1: '0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272',
+};
+const AAVE = {
+  1: '0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9',
+};
+const wBTC = {
+  1: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+};
+const sUSD = {
+  1: '0x57ab1ec28d129707052df4df418d58a2d46d5f51',
+};
+
 const API_ETH_MOCK_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 
 module.exports = {
@@ -14,4 +27,8 @@ module.exports = {
   API_ETH_MOCK_ADDRESS,
   WETH,
   DAI,
+  xSUSHI,
+  AAVE,
+  wBTC,
+  sUSD,
 };

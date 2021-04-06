@@ -4,9 +4,10 @@ const { ParaSwap } = require('paraswap');
 const {
   TxBuilderV2,
   distinctContractAddressBetweenMarketsV2,
+  API_ETH_MOCK_ADDRESS,
 } = require('@aave/protocol-js');
 const { TenderlyFork } = require('../src/tenderly');
-const { WETH, DAI, API_ETH_MOCK_ADDRESS } = require('../src/addresses');
+const { WETH, sUSD } = require('../src/addresses');
 
 const IERC20_ARTIFACT = require('../artifacts/IERC20.json');
 const IWETH_ARTIFACT = require('../artifacts/IWETH.json');
@@ -120,10 +121,10 @@ async function main() {
   console.log('Performing swap using swapCollateral...');
   const swapTxs = await txBuilder.getLendingPool('proto').swapCollateral({
     fromAsset: WETH[FORK_NETWORK_ID],
-    toAsset: DAI[FORK_NETWORK_ID],
+    toAsset: sUSD[FORK_NETWORK_ID],
     swapAll: true,
     fromAToken: aWETH_address,
-    maxSlippage: '2',
+    maxSlippage: '10',
     fromAmount: ethers.utils.formatUnits(priceRoute.srcAmount, 18),
     toAmount: ethers.utils.formatUnits(priceRoute.priceWithSlippage, 18),
     user: signer.address,
@@ -135,8 +136,9 @@ async function main() {
     await (await signer.sendTransaction(await tx.tx())).wait();
   }
   console.log('Swap performed successfully!');
-  const aDAI_address = (await lending_pool.getReserveData(DAI[FORK_NETWORK_ID]))
-    .aTokenAddress;
+  const aDAI_address = (
+    await lending_pool.getReserveData(sUSD[FORK_NETWORK_ID])
+  ).aTokenAddress;
   const aDAI = new ethers.Contract(aDAI_address, IERC20_ARTIFACT.abi, signer);
   const aWETH_balance_after = await aWETH.balanceOf(signer.address);
   const aDAI_balance_after = await aDAI.balanceOf(signer.address);

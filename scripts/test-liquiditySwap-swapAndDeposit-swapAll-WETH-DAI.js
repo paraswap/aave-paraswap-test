@@ -7,7 +7,7 @@ const {
   API_ETH_MOCK_ADDRESS,
 } = require('@aave/protocol-js');
 const { TenderlyFork } = require('../src/tenderly');
-const { WETH, sUSD } = require('../src/addresses');
+const { WETH } = require('../src/addresses');
 
 const IERC20_ARTIFACT = require('../artifacts/IERC20.json');
 const IWETH_ARTIFACT = require('../artifacts/IWETH.json');
@@ -21,12 +21,24 @@ async function main() {
   let signer = ethers.Wallet.createRandom();
   console.log('Created wallet for address', signer.address);
 
+  // fetch v2 assets
+  const assets = (
+    await (
+      await fetch('https://aave.github.io/aave-addresses/mainnet.json')
+    ).json()
+  )[0]['aave-v2'];
+
+  const symbol = 'sUSD';
+  const toAsset = assets.find(
+    (asset) => asset.symbol.toUpperCase() === symbol.toUpperCase()
+  );
+
   // Build a swap on ParaSwap
   const amount_to_swap = ethers.utils.parseEther('10.01');
   const paraswap = new ParaSwap(parseInt(FORK_NETWORK_ID), PARASWAP_API);
   const priceRoute = await paraswap.getRate(
     'WETH',
-    'DAI',
+    toAsset.symbol,
     amount_to_swap.toString(),
     'SELL',
     { referrer: 'aave', excludeDEXS: 'Balancer', excludeMPDEXS: 'Balancer' }
@@ -36,7 +48,7 @@ async function main() {
   if (priceRoute.message) throw new Error('Error getting priceRoute');
   const txParams = await paraswap.buildTx(
     'WETH',
-    'DAI',
+    toAsset.symbol,
     priceRoute.srcAmount,
     priceRoute.priceWithSlippage,
     priceRouteNoOthers,
@@ -121,12 +133,15 @@ async function main() {
   console.log('Performing swap using swapCollateral...');
   const swapTxs = await txBuilder.getLendingPool('proto').swapCollateral({
     fromAsset: WETH[FORK_NETWORK_ID],
-    toAsset: sUSD[FORK_NETWORK_ID],
+    toAsset: toAsset.address,
     swapAll: true,
     fromAToken: aWETH_address,
     maxSlippage: '10',
     fromAmount: ethers.utils.formatUnits(priceRoute.srcAmount, 18),
-    toAmount: ethers.utils.formatUnits(priceRoute.priceWithSlippage, 18),
+    toAmount: ethers.utils.formatUnits(
+      priceRoute.priceWithSlippage,
+      toAsset.decimals
+    ),
     user: signer.address,
     flash: false,
     augustus: txParams.to,
@@ -136,9 +151,8 @@ async function main() {
     await (await signer.sendTransaction(await tx.tx())).wait();
   }
   console.log('Swap performed successfully!');
-  const aDAI_address = (
-    await lending_pool.getReserveData(sUSD[FORK_NETWORK_ID])
-  ).aTokenAddress;
+  const aDAI_address = (await lending_pool.getReserveData(toAsset.address))
+    .aTokenAddress;
   const aDAI = new ethers.Contract(aDAI_address, IERC20_ARTIFACT.abi, signer);
   const aWETH_balance_after = await aWETH.balanceOf(signer.address);
   const aDAI_balance_after = await aDAI.balanceOf(signer.address);
@@ -146,8 +160,8 @@ async function main() {
     'Final balances',
     ethers.utils.formatEther(aWETH_balance_after),
     'aWETH',
-    ethers.utils.formatUnits(aDAI_balance_after, 18),
-    'aDAI'
+    ethers.utils.formatUnits(aDAI_balance_after, toAsset.decimals),
+    toAsset.aTokenSymbol
   );
 }
 

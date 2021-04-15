@@ -41,10 +41,10 @@
     js-sha3 "^0.7.0"
     lodash "^4.17.11"
 
-"@aave/protocol-js@2.7.3-cd25280d1fd2f4e08283e5d7bab70eb7e3005b5b.0":
-  version "2.7.3-cd25280d1fd2f4e08283e5d7bab70eb7e3005b5b.0"
-  resolved "https://registry.yarnpkg.com/@aave/protocol-js/-/protocol-js-2.7.3-cd25280d1fd2f4e08283e5d7bab70eb7e3005b5b.0.tgz#d9ce01786b73468763c4a29b9a00867eed63165d"
-  integrity sha512-UiKrfvJBjnKF1Jbgt+TeRwt4N6Vv5d3jJTM0VvDekI5m/nXotPyQFM1tSqg22hZJdxOWAhWAB/+RuIbo6TU0rw==
+"@aave/protocol-js@2.7.3-7e93cdf449bec039c156d7a1289a1aa7e0076135.0":
+  version "2.7.3-7e93cdf449bec039c156d7a1289a1aa7e0076135.0"
+  resolved "https://registry.yarnpkg.com/@aave/protocol-js/-/protocol-js-2.7.3-7e93cdf449bec039c156d7a1289a1aa7e0076135.0.tgz#4fa7c2c204f516b0ec9670cd897e16adeabeec88"
+  integrity sha512-B/Mge1SAxrtr2d+BNeIs37S/8Ew+QmD23pualhn3F2nFuNLaknoBfctFxE34jiYyjVIGYXkIhkTHEa6bZhhflQ==
   dependencies:
     axios "^0.21.0"
     bignumber.js "^9.0.1"

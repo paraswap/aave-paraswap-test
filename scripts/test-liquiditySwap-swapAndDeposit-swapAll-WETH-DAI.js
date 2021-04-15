@@ -2,6 +2,8 @@ require('dotenv').config();
 const { ethers } = require('ethers');
 const { ParaSwap } = require('paraswap');
 const {
+  normalize,
+  BigNumber,
   TxBuilderV2,
   distinctContractAddressBetweenMarketsV2,
   API_ETH_MOCK_ADDRESS,
@@ -129,6 +131,8 @@ async function main() {
     'WETH in AToken'
   );
 
+  const maxSlippage = 10;
+  console.log(priceRoute.priceWithSlippage);
   // Perform the swap on the adapter
   console.log('Performing swap using swapCollateral...');
   const swapTxs = await txBuilder.getLendingPool('proto').swapCollateral({
@@ -136,10 +140,11 @@ async function main() {
     toAsset: toAsset.address,
     swapAll: true,
     fromAToken: aWETH_address,
-    maxSlippage: '10',
     fromAmount: ethers.utils.formatUnits(priceRoute.srcAmount, 18),
-    toAmount: ethers.utils.formatUnits(
-      priceRoute.priceWithSlippage,
+    minToAmount: normalize(
+      new BigNumber(priceRoute.priceWithSlippage)
+        .multipliedBy((100 - maxSlippage) / 100)
+        .toString(),
       toAsset.decimals
     ),
     user: signer.address,

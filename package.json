@@ -8,7 +8,7 @@
   "license": "Unlicense",
   "private": true,
   "dependencies": {
-    "@aave/protocol-js": "2.7.3-cd25280d1fd2f4e08283e5d7bab70eb7e3005b5b.0",
+    "@aave/protocol-js": "2.7.3-7e93cdf449bec039c156d7a1289a1aa7e0076135.0",
     "axios": "^0.21.1",
     "dotenv": "^8.2.0",
     "ethers": "^5.0.32",

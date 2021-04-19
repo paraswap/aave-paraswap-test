@@ -17,6 +17,8 @@ const ParaSwapLiquiditySwapAdapter_ARTIFACT = require('../artifacts/ParaSwapLiqu
 
 const FORK_NETWORK_ID = process.env.FORK_NETWORK_ID || '1';
 const PARASWAP_API = process.env.PARASWAP_API || 'https://apiv2.paraswap.io/v2';
+const PARASWAP_LIQUIDITY_SWAP_ADAPTER_ADDRESS =
+  process.env.PARASWAP_LIQUIDITY_SWAP_ADAPTER_ADDRESS;
 
 async function main() {
   // Create a new random account signer
@@ -48,18 +50,28 @@ async function main() {
   await fork.fund_account(signer.address);
   console.log('Balance was set to', ethers.utils.formatEther(await signer.getBalance()), 'ETH');
 
-  // Deploy the adapter
-  console.log('Deploying ParaSwapLiquiditySwapAdapter...');
-  const adapterFactory = new ethers.ContractFactory(
-    ParaSwapLiquiditySwapAdapter_ARTIFACT.abi,
-    ParaSwapLiquiditySwapAdapter_ARTIFACT.bytecode,
-    signer
-  );
-  const adapter = await adapterFactory.deploy(
-    AAVE_ADDRESSES_PROVIDER[FORK_NETWORK_ID]
-  );
-  await adapter.deployTransaction.wait();
-  console.log('Deployed adapter at', adapter.address);
+  let adapter;
+  if (PARASWAP_LIQUIDITY_SWAP_ADAPTER_ADDRESS) {
+    adapter = new ethers.Contract(
+      PARASWAP_LIQUIDITY_SWAP_ADAPTER_ADDRESS,
+      ParaSwapLiquiditySwapAdapter_ARTIFACT.abi,
+      signer
+    );
+    console.log('Using adapter at', adapter.address);
+  } else {
+    // Deploy the adapter
+    console.log('Deploying ParaSwapLiquiditySwapAdapter...');
+    const adapterFactory = new ethers.ContractFactory(
+      ParaSwapLiquiditySwapAdapter_ARTIFACT.abi,
+      ParaSwapLiquiditySwapAdapter_ARTIFACT.bytecode,
+      signer
+    );
+    adapter = await adapterFactory.deploy(
+      AAVE_ADDRESSES_PROVIDER[FORK_NETWORK_ID]
+    );
+    await adapter.deployTransaction.wait();
+    console.log('Deployed adapter at', adapter.address);
+  }
 
   // Deposit ETH to get WETH
   console.log('Depositing to WETH...');

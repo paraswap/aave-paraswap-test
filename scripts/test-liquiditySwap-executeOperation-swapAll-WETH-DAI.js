@@ -17,7 +17,7 @@ const ILendingPool_ARTIFACT = require('../artifacts/ILendingPool.json');
 const ParaSwapLiquiditySwapAdapter_ARTIFACT = require('../artifacts/ParaSwapLiquiditySwapAdapter.json');
 
 const FORK_NETWORK_ID = process.env.FORK_NETWORK_ID || '1';
-const PARASWAP_API = process.env.PARASWAP_API || 'https://apiv2.paraswap.io/v2';
+const PARASWAP_API = process.env.PARASWAP_API || 'https://apiv4.paraswap.io/v2';
 const PARASWAP_LIQUIDITY_SWAP_ADAPTER_ADDRESS =
   process.env.PARASWAP_LIQUIDITY_SWAP_ADAPTER_ADDRESS;
 
@@ -29,11 +29,11 @@ async function main() {
   // Build a swap on ParaSwap
   const amount_to_swap = ethers.utils.parseEther('10.01');
   const paraswap = new ParaSwap(parseInt(FORK_NETWORK_ID), PARASWAP_API);
-  const priceRoute = await paraswap.getRate('WETH', 'DAI', amount_to_swap.toString(), 'SELL', { referrer: 'aave', excludeDEXS: 'Balancer', excludeMPDEXS: 'Balancer' });
+  const priceRoute = await paraswap.getRate('WETH', 'DAI', amount_to_swap.toString(), 'SELL', { referrer: 'aave', excludeDEXS: 'Balancer', excludeContractMethods: ['simpleSwap'] });
   const { others, ...priceRouteNoOthers } = priceRoute;
   console.log('priceRoute:', JSON.stringify(priceRouteNoOthers, null, 2));
   if (priceRoute.message) throw new Error('Error getting priceRoute');
-  const txParams = await paraswap.buildTx('WETH', 'DAI', priceRoute.srcAmount, priceRoute.priceWithSlippage, priceRouteNoOthers, signer.address, 'aave', undefined, { ignoreChecks: true, forceMultiSwap: true });
+  const txParams = await paraswap.buildTx('WETH', 'DAI', priceRoute.srcAmount, priceRoute.priceWithSlippage, priceRouteNoOthers, signer.address, 'aave', undefined, { ignoreChecks: true });
   console.log('txParams:', txParams);
   if (txParams.message) throw new Error('Error getting txParams');
   const fromAmountOffset = augustusFromAmountOffsetFromCalldata(txParams.data);

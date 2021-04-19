@@ -2112,10 +2112,10 @@ p-timeout@^1.1.1:
   dependencies:
     p-finally "^1.0.0"
 
-paraswap@^3.2.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/paraswap/-/paraswap-3.2.0.tgz#215d43e8c4733971d0fd28721e2c549a3f38e0d5"
-  integrity sha512-wItGVYadQrM/mcSv6e8HnE8FW8mK9m2WmOXDJWaeyxLndrJGqXLVSCiblc5y3etNjCxUK7noEe14GDPo344nbA==
+paraswap@^4.1.2:
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/paraswap/-/paraswap-4.1.2.tgz#35fe7458acb7d8182b7c1bd335a7b8aa5b40afd9"
+  integrity sha512-9Cn/HX+zAUAreQaCHNfQd5xfn3703jg3bshbCHI8k4N24KB2rv82vByaorzwvOREwWhRsx9KFNovK9vsDTUN4w==
   dependencies:
     "@0x/utils" "^4.5.2"
     async "^3.1.0"

@@ -15,7 +15,7 @@ const ILendingPool_ARTIFACT = require('../artifacts/ILendingPool.json');
 const ParaSwapLiquiditySwapAdapter_ARTIFACT = require('../artifacts/ParaSwapLiquiditySwapAdapter.json');
 
 const FORK_NETWORK_ID = process.env.FORK_NETWORK_ID || '1';
-const PARASWAP_API = process.env.PARASWAP_API || 'https://apiv2.paraswap.io/v2';
+const PARASWAP_API = process.env.PARASWAP_API || 'https://apiv4.paraswap.io/v2';
 const PARASWAP_LIQUIDITY_SWAP_ADAPTER_ADDRESS =
   process.env.PARASWAP_LIQUIDITY_SWAP_ADAPTER_ADDRESS;
 

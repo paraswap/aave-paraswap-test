@@ -28,7 +28,7 @@ async function main() {
   // Build a swap on ParaSwap
   const amount_to_swap = ethers.utils.parseEther('10.01');
   const paraswap = new ParaSwap(parseInt(FORK_NETWORK_ID), PARASWAP_API);
-  const priceRoute = await paraswap.getRate('WETH', 'DAI', amount_to_swap.toString(), 'SELL', { referrer: 'aave', excludeDEXS: 'Balancer', excludeContractMethods: ['simpleSwap'] });
+  const priceRoute = await paraswap.getRate('WETH', 'DAI', amount_to_swap.toString(), 'SELL', { referrer: 'aave', excludeDEXS: 'Balancer', includeContractMethods: ['multiSwap'] });
   const { others, ...priceRouteNoOthers } = priceRoute;
   console.log('priceRoute:', JSON.stringify(priceRouteNoOthers, null, 2));
   if (priceRoute.message) throw new Error('Error getting priceRoute');

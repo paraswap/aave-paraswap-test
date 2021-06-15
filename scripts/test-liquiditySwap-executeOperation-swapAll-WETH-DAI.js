@@ -6,6 +6,7 @@ const { augustusFromAmountOffsetFromCalldata } = require('../src/augustus');
 const { encodeParaSwapLiquiditySwapAdapterParams } = require('../src/adapters');
 const {
   AAVE_ADDRESSES_PROVIDER,
+  AUGUSTUS_REGISTRY,
   WETH,
   DAI,
 } = require('../src/addresses');
@@ -33,7 +34,7 @@ async function main() {
   const { others, ...priceRouteNoOthers } = priceRoute;
   console.log('priceRoute:', JSON.stringify(priceRouteNoOthers, null, 2));
   if (priceRoute.message) throw new Error('Error getting priceRoute');
-  const txParams = await paraswap.buildTx('WETH', 'DAI', priceRoute.srcAmount, priceRoute.priceWithSlippage, priceRouteNoOthers, signer.address, 'aave', undefined, { ignoreChecks: true });
+  const txParams = await paraswap.buildTx('WETH', 'DAI', priceRoute.srcAmount, priceRoute.priceWithSlippage, priceRoute, signer.address, 'aave', undefined, { ignoreChecks: true });
   console.log('txParams:', txParams);
   if (txParams.message) throw new Error('Error getting txParams');
   const fromAmountOffset = augustusFromAmountOffsetFromCalldata(txParams.data);
@@ -68,7 +69,8 @@ async function main() {
       signer
     );
     adapter = await adapterFactory.deploy(
-      AAVE_ADDRESSES_PROVIDER[FORK_NETWORK_ID]
+      AAVE_ADDRESSES_PROVIDER[FORK_NETWORK_ID],
+      AUGUSTUS_REGISTRY[FORK_NETWORK_ID]
     );
     await adapter.deployTransaction.wait();
     console.log('Deployed adapter at', adapter.address);

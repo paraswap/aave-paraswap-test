@@ -10,5 +10,5 @@ Required to set the following in your `.env` file or environment:
 TENDERLY_KEY=<Tenderly API key>
 TENDERLY_ACCOUNT=<Tenderly account containing the project as seen in URL>
 TENDERLY_PROJECT=<Tenderly project name as seen in URL>
-PARASWAP_LIQUIDITY_SWAP_ADAPTER_ADDRESS=0xC91864A5A1E2F52aDdfb69e31b89a3b7783733c3
+PARASWAP_LIQUIDITY_SWAP_ADAPTER_ADDRESS=
 ```

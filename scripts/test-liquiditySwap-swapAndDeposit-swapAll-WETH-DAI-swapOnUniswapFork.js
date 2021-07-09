@@ -29,11 +29,11 @@ async function main() {
   // Build a swap on ParaSwap
   const amount_to_swap = ethers.utils.parseEther('10.01');
   const paraswap = new ParaSwap(parseInt(FORK_NETWORK_ID), PARASWAP_API);
-  const priceRoute = await paraswap.getRate('WETH', 'DAI', amount_to_swap.toString(), 'SELL', { referrer: 'aave', excludeDEXS: 'Balancer', includeContractMethods: ['swapOnUniswapFork'] });
+  const priceRoute = await paraswap.getRate(WETH[FORK_NETWORK_ID], DAI[FORK_NETWORK_ID], amount_to_swap.toString(), 'SELL', { referrer: 'aave', excludeDEXS: 'Balancer', includeContractMethods: ['swapOnUniswapFork'] });
   const { others, ...priceRouteNoOthers } = priceRoute;
   console.log('priceRoute:', JSON.stringify(priceRouteNoOthers, null, 2));
   if (priceRoute.message) throw new Error('Error getting priceRoute');
-  const txParams = await paraswap.buildTx('WETH', 'DAI', priceRoute.srcAmount, priceRoute.priceWithSlippage, priceRoute, signer.address, 'aave', undefined, { ignoreChecks: true });
+  const txParams = await paraswap.buildTx(WETH[FORK_NETWORK_ID], DAI[FORK_NETWORK_ID], priceRoute.srcAmount, priceRoute.priceWithSlippage, priceRoute, signer.address, 'aave', undefined, { ignoreChecks: true });
   console.log('txParams:', txParams);
   if (txParams.message) throw new Error('Error getting txParams');
   const fromAmountOffset = augustusFromAmountOffsetFromCalldata(txParams.data);

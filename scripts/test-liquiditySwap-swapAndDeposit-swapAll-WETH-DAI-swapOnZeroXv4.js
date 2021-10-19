@@ -3,7 +3,6 @@ const { ethers } = require('ethers');
 const { ParaSwap } = require('paraswap');
 const { TenderlyFork } = require('../src/tenderly');
 const { augustusFromAmountOffsetFromCalldata } = require('../src/augustus');
-const { encodeParaSwapLiquiditySwapAdapterParams } = require('../src/adapters');
 const {
   AAVE_ADDRESSES_PROVIDER,
   AUGUSTUS_REGISTRY,
@@ -30,7 +29,7 @@ async function main() {
   // Build a swap on ParaSwap
   const amount_to_swap = ethers.utils.parseEther('10.01');
   const paraswap = new ParaSwap(parseInt(FORK_NETWORK_ID), PARASWAP_API);
-  const priceRoute = await paraswap.getRate(WETH[FORK_NETWORK_ID], DAI[FORK_NETWORK_ID], amount_to_swap.toString(), signer.address, 'SELL', { partner: 'aave', excludeContractMethods: ['simpleSwap'] });
+  const priceRoute = await paraswap.getRate(WETH[FORK_NETWORK_ID], DAI[FORK_NETWORK_ID], amount_to_swap.toString(), signer.address, 'SELL', { partner: 'aave', includeDEXS: 'ParaSwapPool', includeContractMethods: ['swapOnZeroXv4'] });
   const { others, ...priceRouteNoOthers } = priceRoute;
   console.log('priceRoute:', JSON.stringify(priceRouteNoOthers, null, 2));
   if (priceRoute.message) throw new Error('Error getting priceRoute');
@@ -126,15 +125,17 @@ async function main() {
     'WETH in AToken'
   );
 
-  // Approve adapter to spend ATokens (including flashloan premium)
+  // Approve adapter to spend ATokens
   console.log('Setting allowance for adapter...');
   await (await aWETH.approve(adapter.address, priceRoute.srcAmount)).wait();
   console.log('Allowance set successfully');
 
   // Perform the swap on the adapter
-  console.log('Performing swap using flashLoan...');
-  const params = encodeParaSwapLiquiditySwapAdapterParams(
+  console.log('Performing swap using swapAndDeposit...');
+  await (await adapter.swapAndDeposit(
+    WETH[FORK_NETWORK_ID],
     DAI[FORK_NETWORK_ID],
+    priceRoute.srcAmount,
     priceWithSlippage,
     fromAmountOffset,
     txParams.data,
@@ -145,16 +146,7 @@ async function main() {
       v: 0,
       r: '0x0000000000000000000000000000000000000000000000000000000000000000',
       s: '0x0000000000000000000000000000000000000000000000000000000000000000',
-    }
-  );
-  await (await lending_pool.flashLoan(
-    adapter.address,
-    [WETH[FORK_NETWORK_ID]],
-    [priceRoute.srcAmount],
-    [0],
-    signer.address,
-    params,
-    0,
+    },
     { gasLimit: 5000000 }
   )).wait();
   console.log('Swap performed successfully!');

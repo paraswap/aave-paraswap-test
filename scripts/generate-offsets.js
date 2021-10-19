@@ -2,6 +2,7 @@ const { ethers } = require('ethers');
 
 const AugustusSwapperV3_ABI = require('../abi/AugustusSwapperV3.json');
 const AugustusSwapperV4_ABI = require('../abi/AugustusSwapperV4.json');
+const AugustusSwapperV5_ABI = require('../abi/AugustusSwapperV5.json');
 
 const v3 = {
   name: 'Augustus V3',
@@ -11,8 +12,13 @@ const v4 = {
   name: 'Augustus V4',
   iface: new ethers.utils.Interface(AugustusSwapperV4_ABI),
 };
+const v5 = {
+  name: 'Augustus V5',
+  iface: new ethers.utils.Interface(AugustusSwapperV5_ABI),
+};
 
 const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
+const NULL_BYTES16 = '0x00000000000000000000000000000000';
 const NULL_BYTES32 = '0x0000000000000000000000000000000000000000000000000000000000000000';
 const UINT256_MAX = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
 
@@ -83,6 +89,56 @@ printEncode(v4, 'megaSwap', [
     referrer: '',
     useReduxToken: false,
     path: [],
+  },
+]);
+printEncode(v5, 'swapOnUniswap', [
+  UINT256_MAX,
+  0,
+  [],
+]);
+printEncode(v5, 'swapOnUniswapFork', [
+  NULL_ADDRESS,
+  NULL_BYTES32,
+  UINT256_MAX,
+  0,
+  [],
+]);
+printEncode(v5, 'swapOnZeroXv4', [
+  NULL_ADDRESS,
+  NULL_ADDRESS,
+  UINT256_MAX,
+  0,
+  NULL_ADDRESS,
+  '0x',
+]);
+printEncode(v5, 'multiSwap', [
+  {
+    fromToken: NULL_ADDRESS,
+    fromAmount: UINT256_MAX,
+    toAmount: 0,
+    expectedAmount: 0,
+    beneficiary: NULL_ADDRESS,
+    path: [],
+    partner: NULL_ADDRESS,
+    feePercent: 0,
+    permit: '0x',
+    deadline: 0,
+    uuid: NULL_BYTES16,
+  },
+]);
+printEncode(v5, 'megaSwap', [
+  {
+    fromToken: NULL_ADDRESS,
+    fromAmount: UINT256_MAX,
+    toAmount: 0,
+    expectedAmount: 0,
+    beneficiary: NULL_ADDRESS,
+    path: [],
+    partner: NULL_ADDRESS,
+    feePercent: 0,
+    permit: '0x',
+    deadline: 0,
+    uuid: NULL_BYTES16,
   },
 ]);
 

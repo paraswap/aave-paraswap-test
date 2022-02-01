@@ -24,7 +24,7 @@ const UINT256_MAX = '0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 
 const summary = [];
 
-function printEncode(cfg, fnName, args) {
+function printEncode(cfg, fnName, side, args) {
   const encoded = cfg.iface.encodeFunctionData(fnName, args);
   const offset = (encoded.indexOf(UINT256_MAX.slice(2)) - 2) / 2;
   const calc = `4 + ${(offset - 4) / 32} * 32`;
@@ -38,10 +38,11 @@ function printEncode(cfg, fnName, args) {
     comment: `${cfg.name} ${fnName}`,
     offset,
     calc,
+    side,
   });
 }
 
-printEncode(v3, 'multiSwap', [
+printEncode(v3, 'multiSwap', 'SELL', [
   {
     fromToken: NULL_ADDRESS,
     toToken: NULL_ADDRESS,
@@ -53,13 +54,13 @@ printEncode(v3, 'multiSwap', [
     path: [],
   },
 ]);
-printEncode(v4, 'swapOnUniswap', [
+printEncode(v4, 'swapOnUniswap', 'SELL', [
   UINT256_MAX,
   0,
   [],
   0,
 ]);
-printEncode(v4, 'swapOnUniswapFork', [
+printEncode(v4, 'swapOnUniswapFork', 'SELL', [
   NULL_ADDRESS,
   NULL_BYTES32,
   UINT256_MAX,
@@ -67,7 +68,7 @@ printEncode(v4, 'swapOnUniswapFork', [
   [],
   0,
 ]);
-printEncode(v4, 'multiSwap', [
+printEncode(v4, 'multiSwap', 'SELL', [
   {
     fromToken: NULL_ADDRESS,
     fromAmount: UINT256_MAX,
@@ -79,7 +80,7 @@ printEncode(v4, 'multiSwap', [
     path: [],
   },
 ]);
-printEncode(v4, 'megaSwap', [
+printEncode(v4, 'megaSwap', 'SELL', [
   {
     fromToken: NULL_ADDRESS,
     fromAmount: UINT256_MAX,
@@ -91,19 +92,31 @@ printEncode(v4, 'megaSwap', [
     path: [],
   },
 ]);
-printEncode(v5, 'swapOnUniswap', [
+printEncode(v5, 'swapOnUniswap', 'SELL', [
   UINT256_MAX,
   0,
   [],
 ]);
-printEncode(v5, 'swapOnUniswapFork', [
+printEncode(v5, 'buyOnUniswap', 'BUY', [
+  0,
+  UINT256_MAX,
+  [],
+]);
+printEncode(v5, 'swapOnUniswapFork', 'SELL', [
   NULL_ADDRESS,
   NULL_BYTES32,
   UINT256_MAX,
   0,
   [],
 ]);
-printEncode(v5, 'swapOnZeroXv4', [
+printEncode(v5, 'buyOnUniswapFork', 'BUY', [
+  NULL_ADDRESS,
+  NULL_BYTES32,
+  0,
+  UINT256_MAX,
+  [],
+]);
+printEncode(v5, 'swapOnZeroXv4', 'SELL', [
   NULL_ADDRESS,
   NULL_ADDRESS,
   UINT256_MAX,
@@ -111,7 +124,7 @@ printEncode(v5, 'swapOnZeroXv4', [
   NULL_ADDRESS,
   '0x',
 ]);
-printEncode(v5, 'multiSwap', [
+printEncode(v5, 'multiSwap', 'SELL', [
   {
     fromToken: NULL_ADDRESS,
     fromAmount: UINT256_MAX,
@@ -126,7 +139,7 @@ printEncode(v5, 'multiSwap', [
     uuid: NULL_BYTES16,
   },
 ]);
-printEncode(v5, 'megaSwap', [
+printEncode(v5, 'megaSwap', 'SELL', [
   {
     fromToken: NULL_ADDRESS,
     fromAmount: UINT256_MAX,
@@ -134,6 +147,22 @@ printEncode(v5, 'megaSwap', [
     expectedAmount: 0,
     beneficiary: NULL_ADDRESS,
     path: [],
+    partner: NULL_ADDRESS,
+    feePercent: 0,
+    permit: '0x',
+    deadline: 0,
+    uuid: NULL_BYTES16,
+  },
+]);
+printEncode(v5, 'buy', 'BUY', [
+  {
+    adapter: NULL_ADDRESS,
+    fromToken: NULL_ADDRESS,
+    toToken: NULL_ADDRESS,
+    fromAmount: NULL_ADDRESS,
+    toAmount: UINT256_MAX,
+    beneficiary: NULL_ADDRESS,
+    route: [],
     partner: NULL_ADDRESS,
     feePercent: 0,
     permit: '0x',
@@ -145,9 +174,24 @@ printEncode(v5, 'megaSwap', [
 console.log('');
 console.log('function augustusFromAmountOffsetFromCalldata(calldata) {');
 console.log('  switch (calldata.slice(0, 10)) {');
-summary.forEach(({ selector, comment, offset, calc }) => {
-  console.log(`    case '${selector}': // ${comment}`);
-  console.log(`      return ${offset}; // ${calc}`);
+summary.forEach(({ selector, comment, offset, calc, side }) => {
+  if (side === 'SELL') {
+    console.log(`    case '${selector}': // ${comment}`);
+    console.log(`      return ${offset}; // ${calc}`);
+  }
+});
+console.log('    default:');
+console.log("      throw new Error('Unrecognized function selector for Augustus');");
+console.log('  }');
+console.log('}');
+console.log('');
+console.log('function augustusToAmountOffsetFromCalldata(calldata) {');
+console.log('  switch (calldata.slice(0, 10)) {');
+summary.forEach(({ selector, comment, offset, calc, side }) => {
+  if (side === 'BUY') {
+    console.log(`    case '${selector}': // ${comment}`);
+    console.log(`      return ${offset}; // ${calc}`);
+  }
 });
 console.log('    default:');
 console.log("      throw new Error('Unrecognized function selector for Augustus');");

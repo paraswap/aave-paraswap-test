@@ -1,4 +1,4 @@
-// Don't edit this function directly, generate it using generate-offsets.js
+// Don't edit these functions directly, generate them using generate-offsets.js
 function augustusFromAmountOffsetFromCalldata(calldata) {
   switch (calldata.slice(0, 10)) {
     case '0xda8567c8': // Augustus V3 multiSwap
@@ -26,4 +26,17 @@ function augustusFromAmountOffsetFromCalldata(calldata) {
   }
 }
 
-module.exports = { augustusFromAmountOffsetFromCalldata };
+function augustusToAmountOffsetFromCalldata(calldata) {
+  switch (calldata.slice(0, 10)) {
+    case '0x935fb84b': // Augustus V5 buyOnUniswap
+      return 36; // 4 + 1 * 32
+    case '0xc03786b0': // Augustus V5 buyOnUniswapFork
+      return 100; // 4 + 3 * 32
+    case '0xb66bcbac': // Augustus V5 buy
+      return 164; // 4 + 5 * 32
+    default:
+      throw new Error('Unrecognized function selector for Augustus');
+  }
+}
+
+module.exports = { augustusFromAmountOffsetFromCalldata, augustusToAmountOffsetFromCalldata };

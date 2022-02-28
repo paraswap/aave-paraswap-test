@@ -116,6 +116,20 @@ printEncode(v5, 'buyOnUniswapFork', 'BUY', [
   UINT256_MAX,
   [],
 ]);
+printEncode(v5, 'swapOnUniswapV2Fork', 'SELL', [
+  NULL_ADDRESS,
+  UINT256_MAX,
+  0,
+  NULL_ADDRESS,
+  [],
+]);
+printEncode(v5, 'buyOnUniswapV2Fork', 'BUY', [
+  NULL_ADDRESS,
+  0,
+  UINT256_MAX,
+  NULL_ADDRESS,
+  [],
+]);
 printEncode(v5, 'swapOnZeroXv4', 'SELL', [
   NULL_ADDRESS,
   NULL_ADDRESS,

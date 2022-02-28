@@ -15,6 +15,8 @@ function augustusFromAmountOffsetFromCalldata(calldata) {
       return 4; // 4 + 0 * 32
     case '0xf5661034': // Augustus V5 swapOnUniswapFork
       return 68; // 4 + 2 * 32
+    case '0x0b86a4c1': // Augustus V5 swapOnUniswapV2Fork
+      return 36; // 4 + 1 * 32
     case '0x64466805': // Augustus V5 swapOnZeroXv4
       return 68; // 4 + 2 * 32
     case '0xa94e78ef': // Augustus V5 multiSwap
@@ -32,6 +34,8 @@ function augustusToAmountOffsetFromCalldata(calldata) {
       return 36; // 4 + 1 * 32
     case '0xc03786b0': // Augustus V5 buyOnUniswapFork
       return 100; // 4 + 3 * 32
+    case '0xb2f1e6db': // Augustus V5 buyOnUniswapV2Fork
+      return 68; // 4 + 2 * 32
     case '0xb66bcbac': // Augustus V5 buy
       return 164; // 4 + 5 * 32
     default:

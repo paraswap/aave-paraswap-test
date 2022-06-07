@@ -185,12 +185,10 @@ async function main() {
     }
   );
   await (
-    await lending_pool.flashLoan(
+    await lending_pool.flashLoanSimple(
       adapter.address,
-      [WETH[FORK_NETWORK_ID]],
-      [priceRoute.srcAmount],
-      [0],
-      signer.address,
+      WETH[FORK_NETWORK_ID],
+      priceRoute.srcAmount,
       params,
       0,
       { gasLimit: 5000000 }

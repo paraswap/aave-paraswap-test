@@ -4,7 +4,7 @@ const { ParaSwap } = require("paraswap");
 const { TenderlyFork } = require("../src/tenderly");
 const { encodeParaSwapLiquiditySwapAdapterParams } = require("../src/adapters");
 const {
-  AAVE_ADDRESSES_PROVIDER,
+  AAVE_ADDRESSES_PROVIDER_V3,
   AUGUSTUS_REGISTRY,
   WETH,
   DAI,
@@ -12,8 +12,8 @@ const {
 
 const IERC20_ARTIFACT = require("../artifacts/IERC20.json");
 const IWETH_ARTIFACT = require("../artifacts/IWETH.json");
-const ILendingPoolAddressesProvider_ARTIFACT = require("../artifacts/ILendingPoolAddressesProvider.json");
-const ILendingPool_ARTIFACT = require("../artifacts/ILendingPool.json");
+const ILendingPoolAddressesProvider_ARTIFACT = require("../artifacts/IPoolAddressesProvider.json");
+const ILendingPool_ARTIFACT = require("../artifacts/IPool.json");
 const ParaSwapLiquiditySwapAdapter_ARTIFACT = require("../artifacts/ParaSwapLiquiditySwapAdapter_v3.json");
 
 const FORK_NETWORK_ID = process.env.FORK_NETWORK_ID || "1";
@@ -97,11 +97,12 @@ async function main() {
       signer
     );
     adapter = await adapterFactory.deploy(
-      AAVE_ADDRESSES_PROVIDER[FORK_NETWORK_ID],
+      AAVE_ADDRESSES_PROVIDER_V3[FORK_NETWORK_ID],
       AUGUSTUS_REGISTRY[FORK_NETWORK_ID],
-      signer.address
+      signer.address,
+      { gasLimit: 700000000 }
     );
-    await adapter.deployTransaction.wait();
+    await adapter.deployTransaction.wait(1);
     console.log("Deployed adapter at", adapter.address);
   }
 
@@ -123,11 +124,11 @@ async function main() {
   // Set allowance on LendingPool
   console.log("Setting allowance for LendingPool...");
   const addresses_provider = new ethers.Contract(
-    AAVE_ADDRESSES_PROVIDER[FORK_NETWORK_ID],
+    AAVE_ADDRESSES_PROVIDER_V3[FORK_NETWORK_ID],
     ILendingPoolAddressesProvider_ARTIFACT.abi,
     signer
   );
-  const lending_pool_address = await addresses_provider.getLendingPool();
+  const lending_pool_address = await addresses_provider.getPool();
   await (await weth.approve(lending_pool_address, deposit_amount)).wait();
   console.log("Allowance set successfully");
 
